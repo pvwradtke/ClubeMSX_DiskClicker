@@ -7,6 +7,7 @@
 #include "arkos/akg_player.h"
 #include "musica.h"
 #include "efeitos.h"
+#include "sprites.h"
 
 volatile	u8 g_vBlank, g_joy8=0xFF, g_prevJoy8=0xFF, g_keyrow;
 volatile 	u8 g_xj=16, g_yj=16, g_acertos, g_erros, g_colide, g_recorde=50;
@@ -89,7 +90,6 @@ void Titulo(){
     Print_DrawTextAt(3, 19, "Grafico: Mario Cavalcanti");
     Print_DrawTextAt(9, 20, "Musica: Totta");
     Print_DrawTextAt(8, 23, "2026, CHIEN LOCO");
-
     while(!inicia){
         processInputs();
         if(JoyMega_IsPressedB(g_joy8) && !JoyMega_IsPressedB(g_prevJoy8))
