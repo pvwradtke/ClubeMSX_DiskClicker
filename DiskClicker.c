@@ -190,11 +190,11 @@ void main()
 	Bios_SetKeyClick(FALSE);
 	VDP_SetMode(VDP_MODE_SCREEN2);
 	VDP_SetColor(1);
+    LimpaTela();
     for(u8 conta=0;conta<3;++conta){
         VDP_WriteVRAM_16K(tiles_Patterns, g_ScreenPatternLow+2048*conta, 2048);
         VDP_WriteVRAM_16K(tiles_Colors, g_ScreenColorLow+2048*conta, 2048);
     }
-    LimpaTela();
 	VDP_SetSpriteFlag(VDP_SPRITE_SIZE_16);
 	VDP_LoadSpritePattern((const void*)sprites, 0, 24);
     DisableInterrupt();
