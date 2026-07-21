@@ -1,20 +1,24 @@
 #include "msxgl.h"
 #include "vdp.h"
-#include "print.h"
 #include "device/msx-hid.h"
 #include "device/joymega.h"
-#include "font/font_mgl_std1.h"
 #include "arkos/akg_player.h"
+#include "string.h"
 #include "musica.h"
 #include "efeitos.h"
 #include "sprites.h"
+#include "tiles.h"
+#include "maps.h"
 
 volatile	u8 g_vBlank, g_joy8=0xFF, g_prevJoy8=0xFF, g_keyrow;
-volatile 	u8 g_xj=16, g_yj=16, g_acertos, g_erros, g_colide, g_recorde=50;
+volatile 	u8 g_xj, g_yj, g_xd, g_yd, g_acertos, g_erros, g_colide, g_recorde=50;
 volatile    char g_buffer[33];
 
 void VDP_InterruptHandler();
 void WaitVBlank();
+inline void LimpaTela();
+inline void DesenhaTela(const unsigned char *tela);
+inline void Imprime(u8 x, u8 y, const char *texto);
 void Splash();
 void Titulo();
 void Jogo();
@@ -53,22 +57,30 @@ void WaitVBlank(){
 	while(g_vBlank == 0) { }
 }
 
+inline void LimpaTela(){
+    VDP_FillVRAM_16K(0, g_ScreenLayoutLow, 768);
+}
+
+inline void DesenhaTela(const unsigned char *tela){
+    VDP_WriteVRAM_16K(tela, g_ScreenLayoutLow, 768);
+}
+
+void Imprime(u8 x, u8 y, const char *texto){
+    // y<<5 é igual a y*32, mas muito mais rápido no Z80
+    // Está entre parênteses porque deslocamento de bits tem menos prioridade que operador aritmético
+    VDP_WriteVRAM_16K(texto, g_ScreenLayoutLow+x+(y<<5), String_Length(texto));
+}
+
 void Splash(){
     u8 espera=0;
-    Print_Clear();
-    Print_SetColor(3, 0);
-    Print_DrawTextAt(7, 10, "REVISTA CLUBE MSX");
-    Print_DrawTextAt(11, 12, "Apresenta");
+    DesenhaTela(clube_msx);
     while(++espera<120){
         processInputs();
         if(JoyMega_IsPressedB(g_joy8) && !JoyMega_IsPressedB(g_prevJoy8))
             break;
         WaitVBlank();
     }
-    Print_Clear();
-    Print_SetColor(8, 0);
-    Print_DrawTextAt(6, 9, "Um Exemplo MSXgl da");
-    Print_DrawTextAt(11, 11, "CHIEN LOCO");
+    DesenhaTela(chienloco);
     espera=0;
     while(++espera<120){
         processInputs();
@@ -80,16 +92,7 @@ void Splash(){
 
 void Titulo(){
     u8  inicia=FALSE;
-    Print_Clear();
-    Print_SetColor(15, 0);
-    String_Format(g_buffer, "Recorde: %d", g_recorde);
-    Print_DrawTextAt(0, 0, g_buffer);
-    Print_DrawTextAt(10, 8, "DISK CLICKER");
-    Print_DrawTextAt(4, 14, "Aperte Espaco ou Botao B");
-    Print_DrawTextAt(3, 18, "Programa: Paulo PV Radtke");
-    Print_DrawTextAt(3, 19, "Grafico: Mario Cavalcanti");
-    Print_DrawTextAt(9, 20, "Musica: Totta");
-    Print_DrawTextAt(8, 23, "2026, CHIEN LOCO");
+    DesenhaTela(title);
     while(!inicia){
         processInputs();
         if(JoyMega_IsPressedB(g_joy8) && !JoyMega_IsPressedB(g_prevJoy8))
@@ -107,9 +110,12 @@ void Titulo(){
 void Jogo(){
     g_erros=0;
     g_acertos=0;
-    Print_Clear();
+    g_xd = 168;
+    g_yd = 96;
+    g_xj = 16;
+    g_yj = 16;
+    DesenhaTela(game);
     AKG_Play(0, (const void*)0xA000);
-    Print_SetColor(15, 0);
     while(g_erros<3){
         processInputs();
         if(JoyMega_IsPressedLeft(g_joy8))
@@ -121,8 +127,8 @@ void Jogo(){
         else if(JoyMega_IsPressedDown(g_joy8))
             ++g_yj;
         g_colide=FALSE;
-        if(g_xj+3 >=120 && g_xj+3 <= 135)
-            if(g_yj+1 >=88 && g_yj+1<= 103)
+        if(g_xj+3 >=g_xd && g_xj+3 < g_xd+16)
+            if(g_yj+1 >=g_yd && g_yj+1< g_yd+16)
                 g_colide=TRUE;
         if(JoyMega_IsPressedB(g_joy8) && !JoyMega_IsPressedB(g_prevJoy8))
             if(g_colide){
@@ -135,22 +141,22 @@ void Jogo(){
             }
         WaitVBlank();
         if(JoyMega_IsPressedB(g_joy8) && g_colide){
-            VDP_SetSpriteSM1(3, 120, 88,0, 4);
-            VDP_SetSpriteSM1(2, 120, 88,8, 15);
+            VDP_SetSpriteSM1(3, g_xd, g_yd,0, 4);
+            VDP_SetSpriteSM1(2, g_xd, g_yd,8, 15);
         }
         else{
-            VDP_SetSpriteSM1(3, 120, 88, 0, 4);
-            VDP_SetSpriteSM1(2, 120, 88, 4, 15);
+            VDP_SetSpriteSM1(3, g_xd, g_yd, 0, 4);
+            VDP_SetSpriteSM1(2, g_xd, g_yd, 4, 15);
         }
         if(JoyMega_IsPressedB(g_joy8))
             VDP_SetSpriteSM1(0, g_xj,g_yj, 16, 8);
         else
             VDP_SetSpriteSM1(0, g_xj,g_yj, 12, 8);
         VDP_SetSpriteSM1(1, g_xj,g_yj, 20, 9);
-        String_Format(g_buffer, "Acertos: %d", g_acertos);
-        Print_DrawTextAt(0, 0, g_buffer);
-        String_Format(g_buffer, "Erros: %d", g_erros);
-        Print_DrawTextAt(0, 23, g_buffer);
+        String_Format(g_buffer, "ACERTOS: %d", g_acertos);
+        Imprime(0, 0, g_buffer);
+        String_Format(g_buffer, "ERROS: %d", g_erros);
+        Imprime(16, 0, g_buffer);
     }
     AKG_Play(1, (const void*)0xA000);
     // Coloca os sprites fora da tela
@@ -161,17 +167,15 @@ void Jogo(){
 
 void GameOver(){
     u16 tempo=0;
-    Print_Clear();
-    Print_SetColor(15, 0);
+    DesenhaTela(gameover);
     if(g_acertos>g_recorde){
         g_recorde=g_acertos;
-        Print_DrawTextAt(9, 4, "Novo Recorde!");
+        Imprime(9, 1, "NOVO RECORDE!");
     }
-    Print_DrawTextAt(11, 11, "GAME OVER");
-    String_Format(g_buffer, "Seu Placar: %d", g_acertos);
-    Print_DrawTextAt(3, 20, g_buffer);
-    String_Format(g_buffer, "Recorde: %d", g_recorde);
-    Print_DrawTextAt(3, 21, g_buffer);
+    String_Format(g_buffer, "SEU PLACAR: %d", g_acertos);
+    Imprime(3, 19, g_buffer);
+    String_Format(g_buffer, "RECORDE: %d", g_recorde);
+    Imprime(3, 21, g_buffer);
     AKG_PlaySFX(4, ARKOS_CHANNEL_C,0);
     while(++tempo<=300){
         processInputs();
@@ -184,11 +188,13 @@ void GameOver(){
 void main()
 {
 	Bios_SetKeyClick(FALSE);
-	VDP_SetMode(VDP_MODE_SCREEN1);
+	VDP_SetMode(VDP_MODE_SCREEN2);
 	VDP_SetColor(1);
-    Print_Initialize();
-    Print_SetMode(PRINT_MODE_TEXT);
-    Print_SetTextFont(g_Font_MGL_Std1,33);
+    for(u8 conta=0;conta<3;++conta){
+        VDP_WriteVRAM_16K(tiles_Patterns, g_ScreenPatternLow+2048*conta, 2048);
+        VDP_WriteVRAM_16K(tiles_Colors, g_ScreenColorLow+2048*conta, 2048);
+    }
+    LimpaTela();
 	VDP_SetSpriteFlag(VDP_SPRITE_SIZE_16);
 	VDP_LoadSpritePattern((const void*)sprites, 0, 24);
     DisableInterrupt();

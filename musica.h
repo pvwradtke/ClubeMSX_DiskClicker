@@ -3,7 +3,7 @@
 // █  █ █  ▀▀  ▄█  █  █ ██▄▀ ██ ██ █
 // ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // MSXbin 1.4.5 by Guillaume "Aoineko" Blanchard (2022) under CC BY-SA free license
-// File generated on Sat Jul 18 21:41:03 2026
+// File generated on Tue Jul 21 00:03:05 2026
 // Soure file: musica.akg
 const unsigned char __at(0xA000) g_musica[] = {
 	0x41, 0x54, 0x33, 0x30, 0x10, 0xA0, 0x10, 0xA0, 0x10, 0xA0, 0x71, 0xA0, 0x95, 0xA0, 0x77, 0xAE, 

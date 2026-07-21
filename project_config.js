@@ -52,7 +52,7 @@ ProjModules = [ ProjName ];
 // ProjSegments = ProjName;
 
 //-- List of library modules to build (array)
-LibModules = [ "system", "bios", "vdp", "print", "input", "memory", "string", "device/joymega", "arkos/akg_player" ];
+LibModules = [ "system", "bios", "vdp", "input", "memory", "string", "device/joymega", "arkos/akg_player" ];
 
 //-- Additional sources to be compiled and linked with the project (array)
 // AddSources = [];

@@ -3,7 +3,7 @@
 // █  █ █  ▀▀  ▄█  █  █ ██▄▀ ██ ██ █
 // ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // MSXbin 1.4.5 by Guillaume "Aoineko" Blanchard (2022) under CC BY-SA free license
-// File generated on Sat Jul 18 21:38:02 2026
+// File generated on Tue Jul 21 00:03:05 2026
 // Soure file: efeitos.akx
 const unsigned char __at(0x9000) g_efeitos[] = {
 	0x0A, 0x90, 0x1C, 0x90, 0x42, 0x90, 0x81, 0x90, 0x97, 0x90, 0x00, 0xBD, 0x01, 0x5F, 0x00, 0xBD, 
