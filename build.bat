@@ -7,7 +7,7 @@
 ::────────────────────────────────────────────────────────────────────
 @echo off
 
-if not defined MSXGL_PATH set MSXGL_PATH=..\..
+if not defined MSXGL_PATH set MSXGL_PATH=..\MSXgl
 
 cls
 
