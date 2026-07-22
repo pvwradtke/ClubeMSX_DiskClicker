@@ -1,9 +1,11 @@
+// Includes da MSXgl
 #include "msxgl.h"
 #include "vdp.h"
 #include "device/msx-hid.h"
 #include "device/joymega.h"
 #include "arkos/akg_player.h"
 #include "string.h"
+// Includes específicos do jogo
 #include "musica.h"
 #include "efeitos.h"
 #include "sprites.h"
@@ -127,8 +129,8 @@ void Jogo(){
         else if(JoyMega_IsPressedDown(g_joy8))
             ++g_yj;
         g_colide=FALSE;
-        if(g_xj+3 >=g_xd && g_xj+3 < g_xd+16)
-            if(g_yj+1 >=g_yd && g_yj+1< g_yd+16)
+        if(g_xj+5 >=g_xd && g_xj+5 < g_xd+16)
+            if(g_yj >=g_yd && g_yj < g_yd+16)
                 g_colide=TRUE;
         if(JoyMega_IsPressedB(g_joy8) && !JoyMega_IsPressedB(g_prevJoy8))
             if(g_colide){
@@ -148,11 +150,14 @@ void Jogo(){
             VDP_SetSpriteSM1(3, g_xd, g_yd, 0, 4);
             VDP_SetSpriteSM1(2, g_xd, g_yd, 4, 15);
         }
-        if(JoyMega_IsPressedB(g_joy8))
-            VDP_SetSpriteSM1(0, g_xj,g_yj, 16, 8);
-        else
-            VDP_SetSpriteSM1(0, g_xj,g_yj, 12, 8);
-        VDP_SetSpriteSM1(1, g_xj,g_yj, 20, 9);
+        if(JoyMega_IsPressedB(g_joy8)){
+            VDP_SetSpriteSM1(0, g_xj,g_yj, 16, 1);
+            VDP_SetSpriteSM1(1, g_xj,g_yj, 24, 15);
+        }
+        else{
+            VDP_SetSpriteSM1(0, g_xj,g_yj, 12, 1);
+            VDP_SetSpriteSM1(1, g_xj,g_yj, 20, 15);
+        }
         String_Format(g_buffer, "ACERTOS: %d", g_acertos);
         Imprime(0, 0, g_buffer);
         String_Format(g_buffer, "ERROS: %d", g_erros);
@@ -160,8 +165,7 @@ void Jogo(){
     }
     AKG_Play(1, (const void*)0xA000);
     // Coloca os sprites fora da tela
-    for(u8 conta=0;conta<4;++conta)
-        VDP_SetSpriteSM1(conta, 0, 193, 0, 0);
+    VDP_SetSpriteSM1(0, 0, 208, 0, 0);
 
 }
 
@@ -190,13 +194,13 @@ void main()
 	Bios_SetKeyClick(FALSE);
 	VDP_SetMode(VDP_MODE_SCREEN2);
 	VDP_SetColor(1);
-    LimpaTela();
+    LimpaTela(); 
     for(u8 conta=0;conta<3;++conta){
         VDP_WriteVRAM_16K(tiles_Patterns, g_ScreenPatternLow+2048*conta, 2048);
         VDP_WriteVRAM_16K(tiles_Colors, g_ScreenColorLow+2048*conta, 2048);
     }
 	VDP_SetSpriteFlag(VDP_SPRITE_SIZE_16);
-	VDP_LoadSpritePattern((const void*)sprites, 0, 24);
+	VDP_LoadSpritePattern((const void*)sprites, 0, 28);
     DisableInterrupt();
     AKG_Play(1, (const void*)0xA000);
     AKG_InitSFX((const void*)0x9000);
